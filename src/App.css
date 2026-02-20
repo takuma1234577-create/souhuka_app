@@ -1,0 +1,58 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Volume Track - Dark theme with Neon Green (筋肥大・総負荷量) */
+@layer base {
+  body {
+    @apply bg-background text-foreground antialiased;
+  }
+}
+
+/* 週次レポート・自己ベストトースト・ボタン発光は従来のカスタムクラスを維持 */
+.weekly-report .report-message.increase {
+  color: #ccff00;
+}
+.weekly-report .report-message.maintain {
+  color: #666;
+}
+.pb-toast {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+  background: linear-gradient(135deg, rgba(204,255,0,0.15), #111);
+  border: 2px solid #ccff00;
+  border-radius: 12px;
+  padding: 14px 24px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: #ccff00;
+  box-shadow: 0 0 24px rgba(204,255,0,0.25);
+  animation: pb-pop 0.4s ease-out;
+}
+@keyframes pb-pop {
+  from { opacity: 0; transform: translateX(-50%) scale(0.8); }
+  to { opacity: 1; transform: translateX(-50%) scale(1); }
+}
+.btn-save.glow {
+  animation: btn-glow 2.5s ease-out;
+}
+@keyframes btn-glow {
+  0%, 100% { box-shadow: 0 0 0 0 #ccff00; }
+  15%, 85% { box-shadow: 0 0 20px 4px #ccff00, 0 0 40px 8px rgba(204,255,0,0.25); }
+  50% { box-shadow: 0 0 24px 6px #ccff00, 0 0 48px 12px rgba(204,255,0,0.25); }
+}
+
+/* スクロールバー非表示（タブ・リスト用） */
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
