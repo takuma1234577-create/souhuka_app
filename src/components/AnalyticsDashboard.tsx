@@ -221,8 +221,8 @@ export function AnalyticsDashboard() {
                 <LabelList
                   dataKey="volume"
                   position="top"
-                  formatter={(v: number, _: string, props: { payload?: { isBest?: boolean } }) =>
-                    props.payload?.isBest ? '👑 Best!' : ''
+                  formatter={(v: number, _: string, props?: { payload?: { isBest?: boolean } }) =>
+                    props?.payload?.isBest ? '👑 Best!' : ''
                   }
                 />
               </Area>
