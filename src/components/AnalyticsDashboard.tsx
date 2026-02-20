@@ -14,6 +14,8 @@ import { getWeeklyTrend, getWeeklyReport, getVolumeDiff } from '@/analysis';
 import type { MuscleGroup } from '@/constants';
 import { calculateVolumeFromSets } from '@/calculators';
 import { getLogs, getLogsByMuscle } from '@/storage';
+import { PaywallModal } from '@/components/PaywallModal';
+import { presentPaywall } from '@/lib/revenuecat';
 
 const CHIP_ORDER: (undefined | MuscleGroup)[] = [
   undefined,
@@ -27,8 +29,15 @@ const CHIP_ORDER: (undefined | MuscleGroup)[] = [
   '前腕',
 ];
 
-export function AnalyticsDashboard() {
+interface AnalyticsDashboardProps {
+  isPremium: boolean;
+  userId: string;
+  onPremiumUpdate: () => void;
+}
+
+export function AnalyticsDashboard({ isPremium, userId, onPremiumUpdate }: AnalyticsDashboardProps) {
   const [chartMuscle, setChartMuscle] = useState<undefined | MuscleGroup>(undefined);
+  const [showPaywall, setShowPaywall] = useState(false);
 
   const weeklyReport = useMemo(() => getWeeklyReport(chartMuscle), [chartMuscle]);
 
@@ -163,11 +172,19 @@ export function AnalyticsDashboard() {
             const label = value === undefined ? '全身' : value;
             const isActive =
               (value === undefined && chartMuscle === undefined) || value === chartMuscle;
+            const isBodyPart = value !== undefined;
+            const handleClick = () => {
+              if (isBodyPart && !isPremium) {
+                setShowPaywall(true);
+                return;
+              }
+              setChartMuscle(value ?? undefined);
+            };
             return (
               <button
                 key={label}
                 type="button"
-                onClick={() => setChartMuscle(value ?? undefined)}
+                onClick={handleClick}
                 className={`shrink-0 rounded-full px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider transition-all ${
                   isActive
                     ? 'bg-neon text-background'
@@ -179,6 +196,14 @@ export function AnalyticsDashboard() {
             );
           })}
         </div>
+        {showPaywall && (
+          <PaywallModal
+            onClose={() => setShowPaywall(false)}
+            onPurchaseComplete={onPremiumUpdate}
+            userId={userId}
+            presentPaywall={presentPaywall}
+          />
+        )}
         <div className="h-44 w-full">
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={chartData} margin={{ top: 5, right: 5, left: -20, bottom: 5 }}>

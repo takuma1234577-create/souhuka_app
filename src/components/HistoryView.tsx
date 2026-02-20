@@ -1,11 +1,22 @@
-import { ClipboardList } from 'lucide-react';
+import { ClipboardList, Lock } from 'lucide-react';
 import { getLogs } from '@/storage';
 import { calculateVolumeFromSets } from '@/calculators';
 
-export function HistoryView() {
-  const entries = getLogs();
+const ONE_MONTH_MS = 30 * 24 * 60 * 60 * 1000;
 
-  if (entries.length === 0) {
+interface HistoryViewProps {
+  isPremium: boolean;
+}
+
+export function HistoryView({ isPremium }: HistoryViewProps) {
+  const allEntries = getLogs();
+  const cutoff = Date.now() - ONE_MONTH_MS;
+  const visibleEntries = isPremium
+    ? allEntries
+    : allEntries.filter((e) => new Date(e.recordedAt).getTime() >= cutoff);
+  const hasLocked = !isPremium && allEntries.some((e) => new Date(e.recordedAt).getTime() < cutoff);
+
+  if (allEntries.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center gap-3 py-20 text-center">
         <div className="flex h-16 w-16 items-center justify-center rounded-2xl border border-border bg-surface">
@@ -23,7 +34,7 @@ export function HistoryView() {
 
   return (
     <div className="flex flex-col gap-2.5">
-      {entries.map((entry) => {
+      {visibleEntries.map((entry) => {
         const volume = calculateVolumeFromSets(entry.sets);
         const date = new Date(entry.recordedAt);
         const setsSummary =
@@ -68,6 +79,13 @@ export function HistoryView() {
           </div>
         );
       })}
+      {hasLocked && (
+        <div className="flex items-center justify-center gap-2 rounded-2xl border border-border border-dashed bg-surface/50 p-6">
+          <Lock className="size-5 text-muted" />
+          <span className="text-sm font-medium text-muted">Premiumでロック解除</span>
+          <span className="text-xs text-muted/70">（1ヶ月より古い履歴を表示）</span>
+        </div>
+      )}
     </div>
   );
 }

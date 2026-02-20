@@ -1,16 +1,24 @@
 /**
- * ワークアウトログのLocalStorage管理（総負荷量・ボリューム記録）
+ * ワークアウトログのLocalStorage / Firestore 同期（総負荷量・ボリューム記録）
+ * ログイン時は Firestore のデータを優先するため、Provider が setLogsOverride で上書きする
  */
 import { STORAGE_KEYS } from './constants';
 import type { MuscleGroup } from './constants';
 import type { WorkoutLog } from './types';
 
+let logsOverride: WorkoutLog[] | null = null;
+
+/** ログイン中は Firestore 由来のログを getLogs で返すために設定する */
+export function setLogsOverride(logs: WorkoutLog[] | null): void {
+  logsOverride = logs;
+}
+
 /**
- * ワークアウトデータをLocalStorageに保存する（総負荷量ログ）
+ * ワークアウトデータをLocalStorageに保存する（未ログイン時のみ使用）
  * 既存のidがあれば更新、なければ新規追加
  */
 export function saveLog(log: WorkoutLog): WorkoutLog {
-  const logs = getLogs();
+  const logs = getLogsFromStorage();
   const index = logs.findIndex((l) => l.id === log.id);
   const toSave: WorkoutLog = {
     ...log,
@@ -27,14 +35,8 @@ export function saveLog(log: WorkoutLog): WorkoutLog {
   return toSave;
 }
 
-/**
- * 全ワークアウトログを取得する（総負荷量・ボリュームデータ）
- * 記録日時の新しい順
- */
-export function getLogs(): WorkoutLog[] {
-  if (typeof localStorage === 'undefined') {
-    return [];
-  }
+function getLogsFromStorage(): WorkoutLog[] {
+  if (typeof localStorage === 'undefined') return [];
   const raw = localStorage.getItem(STORAGE_KEYS.WORKOUT_LOGS);
   if (!raw) return [];
   try {
@@ -45,6 +47,15 @@ export function getLogs(): WorkoutLog[] {
   } catch {
     return [];
   }
+}
+
+/**
+ * 全ワークアウトログを取得する（総負荷量・ボリュームデータ）
+ * ログイン中は Firestore の上書き分を返し、未ログインは LocalStorage
+ */
+export function getLogs(): WorkoutLog[] {
+  if (logsOverride !== null) return logsOverride;
+  return getLogsFromStorage();
 }
 
 /**

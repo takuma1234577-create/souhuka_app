@@ -1,6 +1,8 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { Dumbbell, Save, Check } from 'lucide-react';
 import confetti from 'canvas-confetti';
+import { AuthProvider, useAuth } from '@/contexts/AuthContext';
+import { WorkoutLogsProvider, useWorkoutLogsContext } from '@/contexts/WorkoutLogsContext';
 import { MuscleGroupTabs } from '@/components/MuscleGroupTabs';
 import { ExerciseSelector } from '@/components/ExerciseSelector';
 import { NumericInputCard } from '@/components/NumericInputCard';
@@ -9,13 +11,15 @@ import { BottomNav, type NavTab } from '@/components/BottomNav';
 import { AnalyticsDashboard } from '@/components/AnalyticsDashboard';
 import { HistoryView } from '@/components/HistoryView';
 import { SettingsView } from '@/components/SettingsView';
+import { LoginView } from '@/components/LoginView';
 import { MUSCLE_GROUPS, EXERCISE_NAMES } from '@/constants';
 import type { MuscleGroup } from '@/constants';
 import { calculate1RM } from '@/calculators';
-import { saveLog } from '@/storage';
 import { checkPersonalBest } from '@/analysis';
 import { getLastSuggestedInputs } from '@/placeholderLog';
 import type { WorkoutLog } from '@/types';
+import { useUserProfile } from '@/hooks/useUserProfile';
+import { useRevenueCatSync } from '@/hooks/useRevenueCatSync';
 
 const FAVORITES_KEY = 'souhuka-favorites';
 
@@ -38,7 +42,12 @@ function saveFavorites(favs: Set<string>) {
   }
 }
 
-export default function App() {
+function AppContent() {
+  const { user, loading: authLoading } = useAuth();
+  const { saveLog } = useWorkoutLogsContext();
+  const { profile, setPremium } = useUserProfile(user?.uid ?? null);
+  useRevenueCatSync(user);
+
   const [activeTab, setActiveTab] = useState<NavTab>('calculator');
   const [muscleGroup, setMuscleGroup] = useState<MuscleGroup>('胸');
   const [exercise, setExercise] = useState<string>(EXERCISE_NAMES['胸'][0] ?? '');
@@ -50,7 +59,19 @@ export default function App() {
   const [btnGlow, setBtnGlow] = useState(false);
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
 
+  const isPremium = profile?.isPremium ?? false;
   const exercises = EXERCISE_NAMES[muscleGroup] ?? [];
+
+  if (authLoading) {
+    return (
+      <div className="flex min-h-dvh items-center justify-center">
+        <div className="text-sm text-muted">読み込み中...</div>
+      </div>
+    );
+  }
+  if (!user) {
+    return <LoginView />;
+  }
 
   useEffect(() => {
     setFavorites(loadFavorites());
@@ -237,7 +258,11 @@ export default function App() {
               <h2 className="mb-3 text-[10px] font-semibold uppercase tracking-[0.2em] text-muted">
                 分析
               </h2>
-              <AnalyticsDashboard />
+              <AnalyticsDashboard
+                isPremium={isPremium}
+                userId={user.uid}
+                onPremiumUpdate={() => setPremium(true)}
+              />
             </div>
           </div>
         )}
@@ -247,7 +272,7 @@ export default function App() {
             <h2 className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted">
               トレーニング履歴
             </h2>
-            <HistoryView />
+            <HistoryView isPremium={isPremium} />
           </div>
         )}
 
@@ -256,7 +281,15 @@ export default function App() {
             <h2 className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted">
               設定
             </h2>
-            <SettingsView />
+            <SettingsView
+              userEmail={user.email ?? undefined}
+              onRestorePurchases={async () => {
+                const { getCustomerInfo, ensureRevenueCatUser } = await import('@/lib/revenuecat');
+                ensureRevenueCatUser(user.uid);
+                const { isPremium: rcPremium } = await getCustomerInfo(user.uid);
+                await setPremium(rcPremium);
+              }}
+            />
           </div>
         )}
       </main>
@@ -270,5 +303,15 @@ export default function App() {
 
       <BottomNav active={activeTab} onNavigate={setActiveTab} />
     </div>
+  );
+}
+
+export default function App() {
+  return (
+    <AuthProvider>
+      <WorkoutLogsProvider>
+        <AppContent />
+      </WorkoutLogsProvider>
+    </AuthProvider>
   );
 }
