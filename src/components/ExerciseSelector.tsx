@@ -61,59 +61,59 @@ export function ExerciseSelector({
         {filteredAndSorted.length === 0 ? (
           <p className="py-4 text-center text-xs text-muted">該当する種目がありません</p>
         ) : (
-        filteredAndSorted.map((exercise) => {
-          const isActive = exercise === selected;
-          const isFav = favorites.has(exercise);
-          return (
-            <div
-              key={exercise}
-              className={`flex items-center gap-2 rounded-xl px-3 py-2.5 transition-all ${
-                isActive
-                  ? 'bg-neon/10 ring-1 ring-neon/30'
-                  : 'hover:bg-surface-raised'
-              }`}
-            >
-              <button
-                type="button"
-                onClick={() => onSelect(exercise)}
-                className="flex flex-1 items-center gap-2.5 text-left"
+          filteredAndSorted.map((exercise) => {
+            const isActive = exercise === selected;
+            const isFav = favorites.has(exercise);
+            return (
+              <div
+                key={exercise}
+                className={`flex items-center gap-2 rounded-xl px-3 py-2.5 transition-all ${
+                  isActive
+                    ? 'bg-neon/10 ring-1 ring-neon/30'
+                    : 'hover:bg-surface-raised'
+                }`}
               >
-                <span
-                  className={`h-2 w-2 shrink-0 rounded-full transition-colors ${
-                    isActive
-                      ? 'bg-neon shadow-[0_0_6px_rgba(204,255,0,0.5)]'
-                      : 'bg-muted/20'
-                  }`}
-                />
-                <span
-                  className={`text-sm font-medium transition-colors ${
-                    isActive ? 'text-neon' : 'text-foreground/80'
-                  }`}
+                <button
+                  type="button"
+                  onClick={() => onSelect(exercise)}
+                  className="flex flex-1 items-center gap-2.5 text-left"
                 >
-                  {exercise}
-                </span>
-              </button>
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onToggleFavorite(exercise);
-                }}
-                aria-label={isFav ? `${exercise}をお気に入りから削除` : `${exercise}をお気に入りに追加`}
-                className="shrink-0 p-1 transition-all active:scale-90"
-              >
-                <Star
-                  className={`size-4 transition-colors ${
-                    isFav
-                      ? 'fill-neon text-neon drop-shadow-[0_0_4px_rgba(204,255,0,0.4)]'
-                      : 'text-muted/30 hover:text-muted/60'
-                  }`}
-                  strokeWidth={isFav ? 2.5 : 1.5}
-                />
-              </button>
-            </div>
-          );
-        })}
+                  <span
+                    className={`h-2 w-2 shrink-0 rounded-full transition-colors ${
+                      isActive
+                        ? 'bg-neon shadow-[0_0_6px_rgba(204,255,0,0.5)]'
+                        : 'bg-muted/20'
+                    }`}
+                  />
+                  <span
+                    className={`text-sm font-medium transition-colors ${
+                      isActive ? 'text-neon' : 'text-foreground/80'
+                    }`}
+                  >
+                    {exercise}
+                  </span>
+                </button>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onToggleFavorite(exercise);
+                  }}
+                  aria-label={isFav ? `${exercise}をお気に入りから削除` : `${exercise}をお気に入りに追加`}
+                  className="shrink-0 p-1 transition-all active:scale-90"
+                >
+                  <Star
+                    className={`size-4 transition-colors ${
+                      isFav
+                        ? 'fill-neon text-neon drop-shadow-[0_0_4px_rgba(204,255,0,0.4)]'
+                        : 'text-muted/30 hover:text-muted/60'
+                    }`}
+                    strokeWidth={isFav ? 2.5 : 1.5}
+                  />
+                </button>
+              </div>
+            );
+          })
         )}
       </div>
     </div>
