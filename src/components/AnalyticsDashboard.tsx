@@ -10,7 +10,7 @@ import {
   LabelList,
   ReferenceDot,
 } from 'recharts';
-import { getWeeklyTrend, getWeeklyReport, getVolumeDiff } from '@/analysis';
+import { getWeeklyTrend, getWeeklyReport, getVolumeDiff, getVolumeByExercise } from '@/analysis';
 import type { MuscleGroup } from '@/constants';
 import { calculateVolumeFromSets } from '@/calculators';
 import { getLogs, getLogsByMuscle } from '@/storage';
@@ -33,9 +33,10 @@ interface AnalyticsDashboardProps {
   isPremium: boolean;
   userId: string;
   onPremiumUpdate: () => void;
+  onRestorePurchases: () => Promise<void>;
 }
 
-export function AnalyticsDashboard({ isPremium, userId, onPremiumUpdate }: AnalyticsDashboardProps) {
+export function AnalyticsDashboard({ isPremium, userId, onPremiumUpdate, onRestorePurchases }: AnalyticsDashboardProps) {
   const [chartMuscle, setChartMuscle] = useState<undefined | MuscleGroup>(undefined);
   const [showPaywall, setShowPaywall] = useState(false);
 
@@ -83,6 +84,11 @@ export function AnalyticsDashboard({ isPremium, userId, onPremiumUpdate }: Analy
   const vsPreviousPercent = volumeDiff.noPreviousRecord
     ? null
     : volumeDiff.diffPercent;
+
+  const exerciseVolumes = useMemo(
+    () => getVolumeByExercise(chartMuscle),
+    [chartMuscle]
+  );
 
   return (
     <div className="flex flex-col gap-3">
@@ -200,6 +206,7 @@ export function AnalyticsDashboard({ isPremium, userId, onPremiumUpdate }: Analy
           <PaywallModal
             onClose={() => setShowPaywall(false)}
             onPurchaseComplete={onPremiumUpdate}
+            onRestore={onRestorePurchases}
             userId={userId}
             presentPaywall={presentPaywall}
           />
@@ -263,6 +270,46 @@ export function AnalyticsDashboard({ isPremium, userId, onPremiumUpdate }: Analy
               )}
             </AreaChart>
           </ResponsiveContainer>
+        </div>
+      </div>
+
+      {/* 種目別総負荷量 */}
+      <div className="rounded-2xl border border-border bg-surface p-4">
+        <span className="text-[10px] font-semibold uppercase tracking-[0.15em] text-muted">
+          種目別総負荷量
+        </span>
+        <p className="mt-0.5 text-[10px] text-muted/80">
+          {chartMuscle ? `${chartMuscle}の種目` : '全身の種目'}（合計）
+        </p>
+        <div className="mt-3 flex max-h-64 flex-col gap-1.5 overflow-y-auto scrollbar-none">
+          {exerciseVolumes.length === 0 ? (
+            <p className="py-4 text-center text-xs text-muted">記録がありません</p>
+          ) : (
+            exerciseVolumes.map((row) => (
+              <div
+                key={chartMuscle ? row.exerciseName : `${row.muscleGroup}-${row.exerciseName}`}
+                className="flex items-center justify-between rounded-xl border border-border/50 bg-surface-raised/50 px-3 py-2.5"
+              >
+                <div className="min-w-0 flex-1">
+                  {!chartMuscle && (
+                    <span className="mr-1.5 inline-block rounded bg-neon/10 px-1.5 py-0.5 text-[9px] font-bold uppercase text-neon">
+                      {row.muscleGroup}
+                    </span>
+                  )}
+                  <span className="truncate text-sm font-medium text-foreground">
+                    {row.exerciseName}
+                  </span>
+                  <span className="ml-1.5 text-[10px] text-muted">
+                    {row.logCount}回
+                  </span>
+                </div>
+                <span className="shrink-0 font-mono text-sm font-bold text-neon">
+                  {row.totalVolume.toLocaleString()}
+                  <span className="ml-0.5 text-[10px] font-normal text-muted">kg</span>
+                </span>
+              </div>
+            ))
+          )}
         </div>
       </div>
     </div>

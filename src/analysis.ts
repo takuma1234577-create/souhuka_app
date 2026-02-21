@@ -162,3 +162,47 @@ export function getWeeklyReport(muscleGroup?: MuscleGroup): WeeklyReportResult {
     isIncrease,
   };
 }
+
+/**
+ * 種目別の総負荷量（全期間の合計）
+ * @param muscleGroup 省略時は全身の全種目、指定時はその部位の種目のみ
+ */
+export interface ExerciseVolumeSummary {
+  exerciseName: string;
+  muscleGroup: MuscleGroup;
+  totalVolume: number;
+  logCount: number;
+}
+
+export function getVolumeByExercise(
+  muscleGroup?: MuscleGroup
+): ExerciseVolumeSummary[] {
+  const logs = muscleGroup ? getLogsByMuscle(muscleGroup) : getLogs();
+  const byKey = new Map<string, { totalVolume: number; logCount: number; muscleGroup: MuscleGroup }>();
+  for (const log of logs) {
+    const key = muscleGroup ? log.exerciseName : `${log.muscleGroup}\t${log.exerciseName}`;
+    const vol = calculateVolumeFromSets(log.sets);
+    const existing = byKey.get(key);
+    if (existing) {
+      existing.totalVolume += vol;
+      existing.logCount += 1;
+    } else {
+      byKey.set(key, {
+        totalVolume: vol,
+        logCount: 1,
+        muscleGroup: log.muscleGroup,
+      });
+    }
+  }
+  const result: ExerciseVolumeSummary[] = [];
+  byKey.forEach((value, key) => {
+    const [muscle, name] = muscleGroup ? [muscleGroup, key] : key.split('\t');
+    result.push({
+      muscleGroup: muscle as MuscleGroup,
+      exerciseName: name,
+      totalVolume: value.totalVolume,
+      logCount: value.logCount,
+    });
+  });
+  return result.sort((a, b) => b.totalVolume - a.totalVolume);
+}

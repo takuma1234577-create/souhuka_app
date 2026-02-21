@@ -1,4 +1,5 @@
-import { Star } from 'lucide-react';
+import { useState, useMemo, useEffect } from 'react';
+import { Star, Search } from 'lucide-react';
 import { EXERCISE_NAMES } from '@/constants';
 import type { MuscleGroup } from '@/constants';
 
@@ -17,23 +18,50 @@ export function ExerciseSelector({
   favorites,
   onToggleFavorite,
 }: ExerciseSelectorProps) {
+  const [searchQuery, setSearchQuery] = useState('');
+
+  useEffect(() => {
+    setSearchQuery('');
+  }, [muscleGroup]);
+
   const exercises = EXERCISE_NAMES[muscleGroup] ?? [];
 
-  const sorted = [...exercises].sort((a, b) => {
-    const aFav = favorites.has(a);
-    const bFav = favorites.has(b);
-    if (aFav && !bFav) return -1;
-    if (!aFav && bFav) return 1;
-    return a.localeCompare(b);
-  });
+  const filteredAndSorted = useMemo(() => {
+    const query = searchQuery.trim().toLowerCase();
+    let list = query
+      ? exercises.filter((ex) => ex.toLowerCase().includes(query))
+      : [...exercises];
+    list.sort((a, b) => {
+      const aFav = favorites.has(a);
+      const bFav = favorites.has(b);
+      if (aFav && !bFav) return -1;
+      if (!aFav && bFav) return 1;
+      return a.localeCompare(b);
+    });
+    return list;
+  }, [exercises, searchQuery, favorites]);
 
   return (
     <div className="flex flex-col gap-1.5">
       <span className="text-[10px] font-semibold uppercase tracking-[0.15em] text-muted">
         種目
       </span>
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted" />
+        <input
+          type="search"
+          placeholder="種目を検索..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="w-full rounded-xl border border-border bg-surface py-2.5 pl-9 pr-3 text-sm text-foreground placeholder:text-muted focus:border-neon focus:outline-none"
+          aria-label="種目を絞り込み検索"
+        />
+      </div>
       <div className="flex max-h-52 flex-col gap-1 overflow-y-auto rounded-2xl border border-border bg-surface p-2 scrollbar-none">
-        {sorted.map((exercise) => {
+        {filteredAndSorted.length === 0 ? (
+          <p className="py-4 text-center text-xs text-muted">該当する種目がありません</p>
+        ) : (
+        filteredAndSorted.map((exercise) => {
           const isActive = exercise === selected;
           const isFav = favorites.has(exercise);
           return (
@@ -86,6 +114,7 @@ export function ExerciseSelector({
             </div>
           );
         })}
+        )}
       </div>
     </div>
   );

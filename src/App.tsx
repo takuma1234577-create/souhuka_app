@@ -20,6 +20,7 @@ import { getLastSuggestedInputs } from '@/placeholderLog';
 import type { WorkoutLog } from '@/types';
 import { useUserProfile } from '@/hooks/useUserProfile';
 import { useRevenueCatSync } from '@/hooks/useRevenueCatSync';
+import { getDefaultIncrement, getWeightUnit } from '@/settings';
 
 const FAVORITES_KEY = 'souhuka-favorites';
 
@@ -157,6 +158,8 @@ function AppContent() {
   }
 
   const lastSuggested = getLastSuggestedInputs(muscleGroup, exercise || undefined);
+  const weightUnit = getWeightUnit();
+  const defaultIncrement = getDefaultIncrement();
 
   return (
     <div className="flex min-h-dvh flex-col bg-background">
@@ -192,9 +195,9 @@ function AppContent() {
             <div className="grid grid-cols-3 gap-2.5">
               <NumericInputCard
                 label="重量"
-                unit="kg"
+                unit={weightUnit}
                 value={weight}
-                step={2.5}
+                step={defaultIncrement}
                 min={0}
                 max={500}
                 onChange={setWeight}
@@ -262,6 +265,12 @@ function AppContent() {
                 isPremium={isPremium}
                 userId={user.uid}
                 onPremiumUpdate={() => setPremium(true)}
+                onRestorePurchases={async () => {
+                  const { getCustomerInfo, ensureRevenueCatUser } = await import('@/lib/revenuecat');
+                  ensureRevenueCatUser(user.uid);
+                  const { isPremium: rcPremium } = await getCustomerInfo(user.uid);
+                  await setPremium(rcPremium);
+                }}
               />
             </div>
           </div>
