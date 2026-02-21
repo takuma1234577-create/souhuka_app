@@ -1,5 +1,6 @@
 import {
-  signInWithPopup,
+  signInWithRedirect,
+  getRedirectResult,
   GoogleAuthProvider,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
@@ -10,9 +11,15 @@ import { auth } from './firebase';
 
 export type AuthUser = User;
 
-export async function signInWithGoogle(): Promise<AuthUser> {
-  const result = await signInWithPopup(auth, new GoogleAuthProvider());
-  return result.user;
+/** Google ログイン（リダイレクト方式・COOP エラーを避ける） */
+export async function signInWithGoogle(): Promise<void> {
+  await signInWithRedirect(auth, new GoogleAuthProvider());
+}
+
+/** リダイレクト後の結果を取得。アプリ起動時に1回呼ぶ */
+export async function getGoogleRedirectResult(): Promise<AuthUser | null> {
+  const result = await getRedirectResult(auth);
+  return result?.user ?? null;
 }
 
 export async function signInWithEmail(email: string, password: string): Promise<AuthUser> {

@@ -62,22 +62,9 @@ function AppContent() {
   const isPremium = profile?.isPremium ?? false;
   const exercises = EXERCISE_NAMES[muscleGroup] ?? [];
 
-  if (authLoading) {
-    return (
-      <div className="flex min-h-dvh items-center justify-center">
-        <div className="text-sm text-muted">読み込み中...</div>
-      </div>
-    );
-  }
-  if (!user) {
-    return <LoginView />;
-  }
-
   useEffect(() => {
     setFavorites(loadFavorites());
   }, []);
-
-  const lastSuggested = getLastSuggestedInputs(muscleGroup, exercise || undefined);
 
   const handleMuscleGroupChange = useCallback(
     (group: MuscleGroup) => {
@@ -157,6 +144,19 @@ function AppContent() {
       setTimeout(() => setBtnGlow(false), 2500);
     }
   }, [muscleGroup, exercise, weight, reps, sets, totalVolume, fireConfetti]);
+
+  if (authLoading) {
+    return (
+      <div className="flex min-h-dvh items-center justify-center">
+        <div className="text-sm text-muted">読み込み中...</div>
+      </div>
+    );
+  }
+  if (!user) {
+    return <LoginView />;
+  }
+
+  const lastSuggested = getLastSuggestedInputs(muscleGroup, exercise || undefined);
 
   return (
     <div className="flex min-h-dvh flex-col bg-background">
