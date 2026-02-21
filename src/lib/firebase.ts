@@ -1,24 +1,16 @@
 import { initializeApp } from 'firebase/app';
 import { getAuth, connectAuthEmulator } from 'firebase/auth';
 import { getFirestore, connectFirestoreEmulator } from 'firebase/firestore';
+import { firebaseConfig } from '@/config.firebase';
 
-const apiKey = import.meta.env.VITE_FIREBASE_API_KEY;
-if (!apiKey || typeof apiKey !== 'string' || apiKey.length < 10) {
+const apiKey = firebaseConfig.apiKey;
+if (!apiKey || apiKey.length < 10) {
   throw new Error(
-    'Firebase APIキーが読み込めていません。.env をプロジェクトルートに置き、VITE_FIREBASE_API_KEY=あなたのキー を設定したうえで、npm run dev を再起動してください。'
+    'Firebase APIキーが読み込めていません。.env をプロジェクトルートに置くか、src/config.firebase.ts の fallback に値を設定してください。'
   );
 }
 
-const firebaseConfig = {
-  apiKey,
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID,
-};
-
-const app = initializeApp(firebaseConfig);
+const app = initializeApp(firebaseConfig as Record<string, string>);
 export const auth = getAuth(app);
 export const db = getFirestore(app);
 
