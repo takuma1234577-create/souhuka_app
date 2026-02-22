@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="VolumeTrack（総負荷量計算アプリ）のプライバシーポリシー" />
+    <title>プライバシーポリシー - VolumeTrack</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: { extend: {} },
+      };
+    </script>
+    <style type="text/tailwindcss">
+      @layer components {
+        .prose-custom {
+          @apply text-gray-700 leading-relaxed;
+        }
+        .prose-custom h2 {
+          @apply text-lg font-bold text-gray-900 mt-8 mb-3 border-b border-gray-200 pb-2;
+        }
+        .prose-custom h3 {
+          @apply text-base font-semibold text-gray-900 mt-6 mb-2;
+        }
+        .prose-custom p {
+          @apply mb-4;
+        }
+        .prose-custom ul {
+          @apply list-disc pl-6 mb-4 space-y-1;
+        }
+      }
+    </style>
+  </head>
+  <body class="bg-gray-50 min-h-screen">
+    <div class="mx-auto max-w-3xl px-4 py-10 sm:px-6 sm:py-14">
+      <header class="mb-10">
+        <h1 class="text-2xl font-bold text-gray-900">プライバシーポリシー</h1>
+        <p class="mt-1 text-sm text-gray-500">VolumeTrack（総負荷量計算アプリ）</p>
+        <p class="mt-4 text-sm text-gray-600">開発者: Takuma</p>
+      </header>
+
+      <main class="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm sm:p-8">
+        <div class="prose-custom">
+          <p>
+            VolumeTrack（以下「本アプリ」）は、ユーザーのプライバシーを尊重し、個人情報の取り扱いについて以下のとおり定めます。本ポリシーは、Google Play および App Store の審査方針に沿って作成されています。
+          </p>
+
+          <h2>1. 個人情報の収集</h2>
+          <p>本アプリでは、以下の情報を収集する場合があります。</p>
+          <ul>
+            <li><strong>メールアドレス</strong> … アカウント登録・ログイン時に、Firebase Authentication を通じて収集します。</li>
+            <li><strong>トレーニング記録</strong> … 重量・回数・セット数、種目名、部位、記録日時などのワークアウトデータを、本アプリの利用に伴い Firestore に保存します。</li>
+            <li><strong>購入履歴・課金状態</strong> … 有料プラン（Premium）の購入・復元に際し、RevenueCat を通じて購入状態を管理します。課金処理はストア（Google Play / App Store）および RevenueCat により行われ、当方でクレジットカード番号等の決済情報は保持しません。</li>
+          </ul>
+          <p>上記のほか、メール送信サービス（Resend）を用いてお問い合わせへの返信等を行う場合、送信ログが Resend 側に記録されることがあります。</p>
+
+          <h2>2. 利用目的</h2>
+          <p>収集した情報は、以下の目的で利用します。</p>
+          <ul>
+            <li>アカウントの作成・認証・管理</li>
+            <li>トレーニングデータのクラウド保存およびバックアップ</li>
+            <li>自己ベストの算出・表示、総負荷量のグラフ表示など、本アプリの機能提供</li>
+            <li>サブスクリプション・買い切りプランの管理、購入の復元対応</li>
+            <li>お問い合わせへの対応、重要なお知らせの送信（必要な場合）</li>
+          </ul>
+
+          <h2>3. 第三者への提供</h2>
+          <p>原則として、ユーザーの個人情報を第三者に販売または譲渡することはありません。</p>
+          <p>本アプリの運営にあたり、以下の外部サービスを利用しており、これらのサービス提供者にデータが預けられます。</p>
+          <ul>
+            <li><strong>Firebase（Google）</strong> … 認証（Authentication）およびデータベース（Firestore）。利用規約・プライバシーポリシーは Google の規定に従います。</li>
+            <li><strong>RevenueCat</strong> … 課金・サブスクリプション管理。購入状態の確認および復元に利用します。</li>
+            <li><strong>Resend</strong> … メール送信。お問い合わせ返信等に利用します。</li>
+          </ul>
+          <p>これらは、本アプリの機能提供に必要な範囲で利用するインフラサービスです。各社のプライバシーポリシーおよびデータ処理方針が、利用者に適用されます。</p>
+
+          <h2>4. データの安全管理</h2>
+          <p>個人情報およびトレーニングデータは、以下の方針で管理します。</p>
+          <ul>
+            <li>通信の暗号化 … 本アプリとサーバー間の通信には SSL/TLS による暗号化を利用します。</li>
+            <li>クラウド上の保管 … Firebase（Firestore）等、セキュリティが確保されたクラウド環境でデータを保管します。</li>
+            <li>アクセス制限 … データへのアクセスは、サービス提供に必要な範囲に限定し、適切に管理します。</li>
+          </ul>
+
+          <h2>5. ユーザーの権利（データの削除・退会）</h2>
+          <p>ユーザーは、ご自身のデータの削除またはアカウントの削除（退会）を求めることができます。</p>
+          <p>削除・退会をご希望の場合は、下記のお問い合わせ先までご連絡ください。ご本人確認のうえ、合理的な期間内に、当方が管理するデータの削除およびアカウント無効化の対応を行います。Firebase や RevenueCat 等の外部サービスに残るデータについては、各サービスの規定および削除手続に従います。</p>
+
+          <h2>6. お問い合わせ先</h2>
+          <p>プライバシーポリシーおよび個人情報の取り扱いに関するお問い合わせは、以下までご連絡ください。</p>
+          <p class="mt-2">
+            <strong>メール:</strong>
+            <a href="mailto:info@send.souhuka.com" class="text-green-600 underline hover:text-green-700">info@send.souhuka.com</a>
+          </p>
+
+          <p class="mt-10 text-right text-sm text-gray-500">2026年2月22日 改訂</p>
+        </div>
+      </main>
+    </div>
+  </body>
+</html>

@@ -59,6 +59,16 @@ export function getLogs(): WorkoutLog[] {
 }
 
 /**
+ * ワークアウトログを1件削除する（未ログイン時のみ使用）
+ */
+export function deleteLog(logId: string): void {
+  const logs = getLogsFromStorage().filter((l) => l.id !== logId);
+  if (typeof localStorage !== 'undefined') {
+    localStorage.setItem(STORAGE_KEYS.WORKOUT_LOGS, JSON.stringify(logs));
+  }
+}
+
+/**
  * 指定した部位（胸・背中など）の過去データを取得する
  * 総負荷量比較・筋肥大トレーニングの部位別分析に使用
  */

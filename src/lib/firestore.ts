@@ -2,6 +2,7 @@ import {
   doc,
   getDoc,
   setDoc,
+  deleteDoc,
   collection,
   getDocs,
   updateDoc,
@@ -83,6 +84,11 @@ function firestoreToWorkoutLog(data: Record<string, unknown>): WorkoutLog {
 export async function saveWorkoutLog(uid: string, log: WorkoutLog): Promise<void> {
   const ref = doc(db, USERS_COLLECTION, uid, WORKOUT_LOGS_SUBCOLLECTION, log.id);
   await setDoc(ref, workoutLogToFirestore(log));
+}
+
+export async function deleteWorkoutLog(uid: string, logId: string): Promise<void> {
+  const ref = doc(db, USERS_COLLECTION, uid, WORKOUT_LOGS_SUBCOLLECTION, logId);
+  await deleteDoc(ref);
 }
 
 export async function getWorkoutLogs(uid: string): Promise<WorkoutLog[]> {

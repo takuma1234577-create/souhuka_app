@@ -1,6 +1,8 @@
-import { ClipboardList, Lock } from 'lucide-react';
+import { useState } from 'react';
+import { ClipboardList, Lock, Trash2, Loader2 } from 'lucide-react';
 import { getLogs } from '@/storage';
 import { calculateVolumeFromSets } from '@/calculators';
+import { useWorkoutLogsContext } from '@/contexts/WorkoutLogsContext';
 
 const ONE_MONTH_MS = 30 * 24 * 60 * 60 * 1000;
 
@@ -9,6 +11,8 @@ interface HistoryViewProps {
 }
 
 export function HistoryView({ isPremium }: HistoryViewProps) {
+  const { deleteLog } = useWorkoutLogsContext();
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const allEntries = getLogs();
   const cutoff = Date.now() - ONE_MONTH_MS;
   const visibleEntries = isPremium
@@ -44,12 +48,14 @@ export function HistoryView({ isPremium }: HistoryViewProps) {
                 .join(', ')
             : '—';
 
+        const isDeleting = deletingId === entry.id;
+
         return (
           <div
             key={entry.id}
-            className="flex items-center justify-between rounded-2xl border border-border bg-surface p-4"
+            className="flex items-center justify-between gap-3 rounded-2xl border border-border bg-surface p-4"
           >
-            <div className="flex flex-col gap-1.5">
+            <div className="flex min-w-0 flex-1 flex-col gap-1.5">
               <div className="flex items-center gap-2">
                 <span className="rounded-full bg-neon/10 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-neon">
                   {entry.muscleGroup}
@@ -63,18 +69,41 @@ export function HistoryView({ isPremium }: HistoryViewProps) {
                   })}
                 </span>
               </div>
-              <span className="text-sm font-medium text-foreground/90">
+              <span className="block text-sm font-medium text-foreground/90 truncate">
                 {entry.exerciseName}
               </span>
               <span className="text-xs text-muted">{setsSummary}</span>
             </div>
-            <div className="flex flex-col items-end gap-0.5">
-              <span className="font-mono text-lg font-bold text-foreground">
-                {volume.toLocaleString()}
-              </span>
-              <span className="text-[10px] uppercase tracking-wider text-muted/50">
-                kg
-              </span>
+            <div className="flex shrink-0 items-center gap-2">
+              <div className="flex flex-col items-end gap-0.5">
+                <span className="font-mono text-lg font-bold text-foreground">
+                  {volume.toLocaleString()}
+                </span>
+                <span className="text-[10px] uppercase tracking-wider text-muted/50">
+                  kg
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={async () => {
+                  if (!window.confirm('この記録を削除しますか？')) return;
+                  setDeletingId(entry.id);
+                  try {
+                    await deleteLog(entry.id);
+                  } finally {
+                    setDeletingId(null);
+                  }
+                }}
+                disabled={isDeleting}
+                className="rounded-xl p-2 text-muted transition-colors hover:bg-red-500/10 hover:text-red-400 disabled:opacity-50"
+                aria-label={`${entry.exerciseName}を削除`}
+              >
+                {isDeleting ? (
+                  <Loader2 className="size-4 animate-spin" />
+                ) : (
+                  <Trash2 className="size-4" />
+                )}
+              </button>
             </div>
           </div>
         );

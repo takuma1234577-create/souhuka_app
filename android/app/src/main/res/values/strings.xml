@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">総負荷量トラック</string>
+    <string name="title_activity_main">総負荷量トラック</string>
+    <string name="package_name">com.souhukaapp.tracker</string>
+    <string name="custom_url_scheme">com.souhukaapp.tracker</string>
+</resources>

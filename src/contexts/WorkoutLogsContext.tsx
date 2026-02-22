@@ -1,14 +1,15 @@
 import React, { createContext, useCallback, useContext, useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useWorkoutLogs } from '@/hooks/useWorkoutLogs';
-import { saveLog as saveLogLocal, getLogs, setLogsOverride } from '@/storage';
-import { saveWorkoutLog } from '@/lib/firestore';
+import { saveLog as saveLogLocal, getLogs, setLogsOverride, deleteLog as deleteLogLocal } from '@/storage';
+import { saveWorkoutLog, deleteWorkoutLog } from '@/lib/firestore';
 import type { WorkoutLog } from '@/types';
 
 interface WorkoutLogsContextValue {
   logs: WorkoutLog[];
   loading: boolean;
   saveLog: (log: WorkoutLog) => Promise<void>;
+  deleteLog: (logId: string) => Promise<void>;
 }
 
 const WorkoutLogsContext = createContext<WorkoutLogsContextValue | null>(null);
@@ -36,6 +37,18 @@ export function WorkoutLogsProvider({ children }: { children: React.ReactNode })
     [uid]
   );
 
+  const deleteLog = useCallback(
+    async (logId: string) => {
+      if (uid) {
+        await deleteWorkoutLog(uid, logId);
+      } else {
+        deleteLogLocal(logId);
+        setLocalLogs(getLogs());
+      }
+    },
+    [uid]
+  );
+
   const logs = uid ? firestoreLogs : localLogs;
   const loading = uid ? firestoreLoading : false;
 
@@ -44,7 +57,7 @@ export function WorkoutLogsProvider({ children }: { children: React.ReactNode })
     return () => setLogsOverride(null);
   }, [uid, logs]);
 
-  const value: WorkoutLogsContextValue = { logs, loading, saveLog };
+  const value: WorkoutLogsContextValue = { logs, loading, saveLog, deleteLog };
 
   return (
     <WorkoutLogsContext.Provider value={value}>
