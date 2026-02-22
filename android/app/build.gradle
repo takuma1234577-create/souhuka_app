@@ -16,8 +16,26 @@ android {
             ignoreAssetsPattern = '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
         }
     }
+
+    signingConfigs {
+        release {
+            def keystoreFile = file("my-release-key.keystore")
+            if (!keystoreFile.exists()) {
+                throw new GradleException(
+                    "リリース用キーストアが見つかりません。\n" +
+                    "android/app/my-release-key.keystore にキーストアを配置してから bundleRelease を実行してください。"
+                )
+            }
+            storeFile keystoreFile
+            storePassword "511415"
+            keyAlias "my-key-alias"
+            keyPassword "511415"
+        }
+    }
+
     buildTypes {
         release {
+            signingConfig signingConfigs.release
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }

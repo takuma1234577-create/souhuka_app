@@ -26,6 +26,24 @@ npm run cap:sync
 3. **Build → Generate Signed Bundle / App Bundle** で AAB を作成
 4. [Google Play Console](https://play.google.com/console) で AAB をアップロード
 
+#### ターミナルで AAB をビルドする場合
+
+- **Java**: プロジェクトに JDK 17 を入れています（`.jdk/`）。未インストールの場合は `./gradlew` 実行時に「Java Runtime が見つからない」となります。
+- **Android SDK**: 必須です。通常は [Android Studio](https://developer.android.com/studio) をインストールすると `~/Library/Android/sdk` に入ります。未導入の場合は AAB ビルドできません。
+
+```bash
+# Java をプロジェクトの JDK に合わせる（.jdk がある場合）
+export JAVA_HOME="$(pwd)/.jdk/jdk-17.0.18+8/Contents/Home"
+
+# Android SDK の場所を指定（Android Studio 導入後）
+export ANDROID_HOME="$HOME/Library/Android/sdk"
+
+# AAB をビルド
+cd android && ./gradlew bundleRelease
+```
+
+生成される AAB: `android/app/build/outputs/bundle/release/app-release.aab`
+
 ### 3. iOS（App Store 用）
 
 1. **Mac と Xcode が必要です**
