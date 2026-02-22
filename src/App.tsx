@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { Dumbbell, Save, Check } from 'lucide-react';
+import { Save, Check } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { AuthProvider, useAuth } from '@/contexts/AuthContext';
 import { WorkoutLogsProvider, useWorkoutLogsContext } from '@/contexts/WorkoutLogsContext';
@@ -165,8 +165,8 @@ function AppContent() {
     <div className="flex min-h-dvh flex-col bg-background">
       <header className="sticky top-0 z-40 border-b border-border bg-background/90 backdrop-blur-xl">
         <div className="mx-auto flex max-w-md items-center gap-3 px-5 py-3.5">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-neon shadow-[0_0_12px_rgba(204,255,0,0.2)]">
-            <Dumbbell className="size-4 text-background" strokeWidth={3} />
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-xl shadow-[0_0_12px_rgba(204,255,0,0.2)]">
+            <img src="/icon.png" alt="" className="size-full object-cover" />
           </div>
           <div className="flex flex-col">
             <h1 className="text-sm font-black uppercase tracking-[0.15em] text-foreground">
