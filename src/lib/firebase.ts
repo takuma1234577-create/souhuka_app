@@ -1,5 +1,5 @@
 import { initializeApp } from 'firebase/app';
-import { getAuth, connectAuthEmulator } from 'firebase/auth';
+import { getAuth, connectAuthEmulator, browserLocalPersistence, setPersistence } from 'firebase/auth';
 import { getFirestore, connectFirestoreEmulator } from 'firebase/firestore';
 import { firebaseConfig } from '@/config.firebase';
 
@@ -13,6 +13,9 @@ if (!apiKey || apiKey.length < 10) {
 const app = initializeApp(firebaseConfig as Record<string, string>);
 export const auth = getAuth(app);
 export const db = getFirestore(app);
+
+// リロード後もログイン状態を維持（LocalStorage に保存）
+setPersistence(auth, browserLocalPersistence).catch(() => {});
 
 if (import.meta.env.DEV && import.meta.env.VITE_FIREBASE_USE_EMULATOR === 'true') {
   connectAuthEmulator(auth, 'http://127.0.0.1:9099');

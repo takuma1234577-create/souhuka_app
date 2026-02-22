@@ -56,6 +56,8 @@ function AppContent() {
   const [reps, setReps] = useState(0);
   const [sets, setSets] = useState(0);
   const [saved, setSaved] = useState(false);
+  const [saveError, setSaveError] = useState('');
+  const [saving, setSaving] = useState(false);
   const [showPbToast, setShowPbToast] = useState(false);
   const [btnGlow, setBtnGlow] = useState(false);
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
@@ -119,9 +121,11 @@ function AppContent() {
     fire(0.1, { spread: 120, startVelocity: 25, decay: 0.92, scalar: 1.2 });
   }, []);
 
-  const handleSave = useCallback(() => {
+  const handleSave = useCallback(async () => {
     if (!exercise.trim() || weight <= 0 || reps <= 0 || sets <= 0) return;
 
+    setSaveError('');
+    setSaving(true);
     const volume = totalVolume;
     const pb = checkPersonalBest(muscleGroup, volume, exercise.trim());
 
@@ -132,19 +136,24 @@ function AppContent() {
       sets: Array.from({ length: sets }, () => ({ weight, reps })),
       recordedAt: new Date().toISOString(),
     };
-    saveLog(log);
+    try {
+      await saveLog(log);
+      setSaved(true);
+      setTimeout(() => setSaved(false), 1500);
 
-    setSaved(true);
-    setTimeout(() => setSaved(false), 1500);
-
-    if (pb.isPersonalBest) {
-      setShowPbToast(true);
-      setTimeout(() => setShowPbToast(false), 3000);
-      fireConfetti();
-      setBtnGlow(true);
-      setTimeout(() => setBtnGlow(false), 2500);
+      if (pb.isPersonalBest) {
+        setShowPbToast(true);
+        setTimeout(() => setShowPbToast(false), 3000);
+        fireConfetti();
+        setBtnGlow(true);
+        setTimeout(() => setBtnGlow(false), 2500);
+      }
+    } catch (e) {
+      setSaveError((e as Error)?.message ?? '保存に失敗しました。通信を確認して再試行してください。');
+    } finally {
+      setSaving(false);
     }
-  }, [muscleGroup, exercise, weight, reps, sets, totalVolume, fireConfetti]);
+  }, [muscleGroup, exercise, weight, reps, sets, totalVolume, saveLog, fireConfetti]);
 
   if (authLoading) {
     return (
@@ -234,17 +243,25 @@ function AppContent() {
               </p>
             )}
 
+            {saveError && (
+              <p className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-2 text-sm text-red-400">
+                {saveError}
+              </p>
+            )}
+
             <button
               type="button"
               onClick={handleSave}
-              disabled={saved || !exercise.trim()}
+              disabled={saving || saved || !exercise.trim()}
               className={`btn-save flex items-center justify-center gap-2.5 rounded-2xl px-6 py-4 text-sm font-bold uppercase tracking-[0.15em] transition-all active:scale-[0.97] ${
                 saved
                   ? 'bg-neon/15 text-neon'
                   : 'bg-neon text-background shadow-[0_0_24px_rgba(204,255,0,0.2)] hover:shadow-[0_0_32px_rgba(204,255,0,0.35)]'
               } ${btnGlow ? 'glow' : ''}`}
             >
-              {saved ? (
+              {saving ? (
+                '保存中...'
+              ) : saved ? (
                 <>
                   <Check className="size-4" strokeWidth={3} />
                   保存しました
