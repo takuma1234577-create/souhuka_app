@@ -126,6 +126,10 @@ function AppContent() {
 
     setSaveError('');
     setSaving(true);
+
+    // 通信がハングしても「保存中...」で固まらないよう、最大3秒で解除
+    const timeoutId = setTimeout(() => setSaving(false), 3000);
+
     const volume = totalVolume;
     const pb = checkPersonalBest(muscleGroup, volume, exercise.trim());
 
@@ -138,6 +142,8 @@ function AppContent() {
     };
     try {
       await saveLog(log);
+      clearTimeout(timeoutId);
+      setSaving(false);
       setSaved(true);
       setTimeout(() => setSaved(false), 1500);
 
@@ -149,9 +155,9 @@ function AppContent() {
         setTimeout(() => setBtnGlow(false), 2500);
       }
     } catch (e) {
-      setSaveError((e as Error)?.message ?? '保存に失敗しました。通信を確認して再試行してください。');
-    } finally {
+      clearTimeout(timeoutId);
       setSaving(false);
+      setSaveError((e as Error)?.message ?? '保存に失敗しました。通信を確認して再試行してください。');
     }
   }, [muscleGroup, exercise, weight, reps, sets, totalVolume, saveLog, fireConfetti]);
 
