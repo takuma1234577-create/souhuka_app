@@ -1,7 +1,7 @@
 import React, { createContext, useCallback, useContext, useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useWorkoutLogs } from '@/hooks/useWorkoutLogs';
-import { saveLog as saveLogLocal, getLogs, setLogsOverride, deleteLog as deleteLogLocal } from '@/storage';
+import { saveLog as saveLogLocal, getLogs, getLocalStorageLogsOnly, setLogsOverride, deleteLog as deleteLogLocal } from '@/storage';
 import { saveWorkoutLog, deleteWorkoutLog } from '@/lib/firestore';
 import type { WorkoutLog } from '@/types';
 
@@ -18,10 +18,10 @@ export function WorkoutLogsProvider({ children }: { children: React.ReactNode })
   const { user } = useAuth();
   const uid = user?.uid ?? null;
   const { logs: firestoreLogs, loading: firestoreLoading } = useWorkoutLogs(uid);
-  const [localLogs, setLocalLogs] = useState<WorkoutLog[]>(() => getLogs());
+  const [localLogs, setLocalLogs] = useState<WorkoutLog[]>(() => getLocalStorageLogsOnly());
 
   useEffect(() => {
-    if (!uid) setLocalLogs(getLogs());
+    if (!uid) setLocalLogs(getLocalStorageLogsOnly());
   }, [uid]);
 
   const saveLog = useCallback(

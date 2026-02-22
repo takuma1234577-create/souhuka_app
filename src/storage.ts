@@ -49,6 +49,11 @@ function getLogsFromStorage(): WorkoutLog[] {
   }
 }
 
+/** 移行用: 上書きを無視して LocalStorage のログだけ返す（getLogs だとログイン時に空が返り Firestore を上書きするため） */
+export function getLocalStorageLogsOnly(): WorkoutLog[] {
+  return getLogsFromStorage();
+}
+
 /**
  * 全ワークアウトログを取得する（総負荷量・ボリュームデータ）
  * ログイン中は Firestore の上書き分を返し、未ログインは LocalStorage

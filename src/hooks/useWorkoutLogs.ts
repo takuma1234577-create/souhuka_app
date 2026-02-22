@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import { subscribeWorkoutLogs, getWorkoutLogs, setWorkoutLogs } from '@/lib/firestore';
-import { getLogs } from '@/storage';
+import { subscribeWorkoutLogs, setWorkoutLogs } from '@/lib/firestore';
+import { getLogs, getLocalStorageLogsOnly } from '@/storage';
 import type { WorkoutLog } from '@/types';
 
 const MIGRATION_KEY = 'souhuka_migrated_to_firestore';
@@ -23,7 +23,8 @@ export function useWorkoutLogs(uid: string | null): {
     const migrateOnce = async () => {
       const migrated = localStorage.getItem(MIGRATION_KEY);
       if (migrated === uid) return;
-      const localLogs = getLogs();
+      // getLogs() はログイン中は Firestore の上書き（初期は []）を返すため使わない。LocalStorage のみ参照する
+      const localLogs = getLocalStorageLogsOnly();
       if (localLogs.length > 0) {
         await setWorkoutLogs(uid, localLogs);
         localStorage.setItem(MIGRATION_KEY, uid);
