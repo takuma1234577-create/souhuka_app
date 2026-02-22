@@ -1,4 +1,5 @@
 import {
+  signInWithPopup,
   signInWithRedirect,
   getRedirectResult,
   GoogleAuthProvider,
@@ -11,9 +12,21 @@ import { auth } from './firebase';
 
 export type AuthUser = User;
 
-/** Google ログイン（リダイレクト方式・COOP エラーを避ける） */
+/** Google ログイン（ポップアップ優先。ブロック時はリダイレクトにフォールバック） */
 export async function signInWithGoogle(): Promise<void> {
-  await signInWithRedirect(auth, new GoogleAuthProvider());
+  const provider = new GoogleAuthProvider();
+  try {
+    await signInWithPopup(auth, provider);
+  } catch (popupError: unknown) {
+    const msg = (popupError as Error)?.message ?? '';
+    const isPopupBlocked =
+      /popup|blocked|cross-origin|closed/i.test(msg) || (popupError as { code?: string })?.code === 'auth/popup-blocked';
+    if (isPopupBlocked) {
+      await signInWithRedirect(auth, provider);
+    } else {
+      throw popupError;
+    }
+  }
 }
 
 /** リダイレクト後の結果を取得。アプリ起動時に1回呼ぶ */
