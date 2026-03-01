@@ -122,7 +122,15 @@ function AppContent() {
   }, []);
 
   const handleSave = useCallback(async () => {
-    if (!exercise.trim() || weight <= 0 || reps <= 0 || sets <= 0) return;
+    const trimmedExercise = exercise.trim();
+    if (!trimmedExercise) {
+      setSaveError('種目を選択してから記録してください。');
+      return;
+    }
+    if (weight <= 0 || reps <= 0 || sets <= 0) {
+      setSaveError('重量・レップ・セットを1以上にしてから記録してください。');
+      return;
+    }
 
     setSaveError('');
     setSaving(true);
@@ -136,7 +144,7 @@ function AppContent() {
     const log: WorkoutLog = {
       id: crypto.randomUUID(),
       muscleGroup,
-      exerciseName: exercise.trim(),
+      exerciseName: trimmedExercise,
       sets: Array.from({ length: sets }, () => ({ weight, reps })),
       recordedAt: new Date().toISOString(),
     };
@@ -258,7 +266,7 @@ function AppContent() {
             <button
               type="button"
               onClick={handleSave}
-              disabled={saving || saved || !exercise.trim()}
+              disabled={saving || saved}
               className={`btn-save flex items-center justify-center gap-2.5 rounded-2xl px-6 py-4 text-sm font-bold uppercase tracking-[0.15em] transition-all active:scale-[0.97] ${
                 saved
                   ? 'bg-neon/15 text-neon'
