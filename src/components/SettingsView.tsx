@@ -21,6 +21,7 @@ import {
   type DefaultIncrement,
 } from '@/settings';
 import { getLogs } from '@/storage';
+import { PAYWALL_LINKS } from '@/constants';
 
 interface SettingsViewProps {
   userEmail?: string;
@@ -249,6 +250,24 @@ export function SettingsView({ userEmail, onRestorePurchases }: SettingsViewProp
               <div className="space-y-3 text-sm text-muted">
                 <p>総負荷量トラック v1.0</p>
                 <p>筋トレの総負荷量（ボリューム）を記録し、筋肥大の軌跡を可視化するアプリです。</p>
+                <div className="mt-4 flex flex-col gap-2">
+                  <a
+                    href={PAYWALL_LINKS.PRIVACY_POLICY}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="w-full rounded-xl border border-border bg-surface-raised py-3 text-center text-sm font-semibold text-foreground"
+                  >
+                    プライバシーポリシー
+                  </a>
+                  <a
+                    href={PAYWALL_LINKS.TERMS_OF_USE}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="w-full rounded-xl border border-border bg-surface-raised py-3 text-center text-sm font-semibold text-foreground"
+                  >
+                    利用規約
+                  </a>
+                </div>
                 <button
                   type="button"
                   onClick={() => setModal(null)}
